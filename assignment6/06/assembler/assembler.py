@@ -86,6 +86,15 @@ def init_token_lookup_dict() -> dict:
     token_lookup["R15"] = 15
     token_lookup["SCREEN"] = 16384
     token_lookup["KBD"] = 24576
+    token_lookup["SP"] = 0
+    token_lookup["LCL"] = 1
+    token_lookup["ARG"] = 2
+    token_lookup["THIS"] = 3
+    token_lookup["THAT"] = 4
+    token_lookup["LOOP"] = 4
+    token_lookup["STOP"] = 18
+    token_lookup["i"] = 16
+    token_lookup["sum"] = 17
 
     return token_lookup
 
