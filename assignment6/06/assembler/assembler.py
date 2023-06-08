@@ -1,13 +1,14 @@
 import sys
 
 def generate_machine_code(line: str) -> str:
-    # take line as input, check for A_instruction, C_instruction, or L_instruction, break line into components as needed, interact with symbol table as needed, use lookup dictionaries to translate symbolic assembly into binary and return that binary value
-    global nexttokendest
-    if line[0] == "(":
+    # Generates machine code based on instruction
+    global nexttokendest # In case we need to add a new token
+    if line[0] == "(": # skip loop components
         output = ""
+    # A instructions
     elif line[0] == "@":
-        line = line[1:]
-        try :
+        line = line[1:] # Stripping out @ symbol
+        try : # Checking if we are directly accessing memory with number or a token
             intline = int(line)
             if (intline < 0) or (intline > 32767):
                 raise Exception("Out of range error")
@@ -22,30 +23,20 @@ def generate_machine_code(line: str) -> str:
                 nexttokendest += 1
     # Everything else should be C instructions
     else:
-        hasdest = False
-        hasjump = False
-        if "=" in line:
-            hasdest = True
-        if ";" in line:
-            hasjump = True
-        if (hasdest == True) and (hasjump == False):
-            jump = "000"
+        jump = "000"
+        dest = "000"
+        current = line
+        if "=" in current:
             splitline = line.split("=")
             splitline[0] = ''.join(sorted(splitline[0]))
             dest = destdict[splitline[0]]
-            comp = compdict[splitline[1]]
-        elif (hasdest == False) and (hasjump == True):
-            dest = "000"
+            current = splitline[1]
+        if ";" in current:
             splitline = line.split(";")
             comp = compdict[splitline[0]]
             jump = jumpdict[splitline[1]]
         else:
-            splitline = line.split("=")
-            splitline[0] = ''.join(sorted(splitline[0]))
-            dest = destdict[splitline[0]]
-            splitline = splitline[1].split(";")
-            comp = compdict[splitline[0]]
-            jump = jumpdict[splitline[1]]
+            comp = compdict[current]
         output = "111" + comp + dest + jump
     return output
 
