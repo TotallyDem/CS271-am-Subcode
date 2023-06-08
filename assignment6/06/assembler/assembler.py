@@ -165,6 +165,7 @@ def main():
             if (hasdest == True) and (hasjump == False):
                 jump = "000"
                 splitline = line.split("=")
+                splitline[0] = ''.join(sorted(splitline[0]))
                 dest = destdict[splitline[0]]
                 comp = compdict[splitline[1]]
             elif (hasdest == False) and (hasjump == True):
@@ -174,6 +175,7 @@ def main():
                 jump = jumpdict[splitline[1]]
             else:
                 splitline = line.split("=")
+                splitline[0] = ''.join(sorted(splitline[0]))
                 dest = destdict[splitline[0]]
                 splitline = splitline[1].split(";")
                 comp = compdict[splitline[0]]
