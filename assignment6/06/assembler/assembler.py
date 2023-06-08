@@ -2,7 +2,7 @@ import sys
 
 def generate_machine_code(line: str) -> str:
     # Generates machine code based on instruction
-    nexttokendest = 16 # In case we need to add a new token
+    global nexttokendest # In case we need to add a new token
     if line[0] == "(": # skip loop components
         output = ""
     # A instructions
@@ -10,7 +10,7 @@ def generate_machine_code(line: str) -> str:
         line = line[1:] # Stripping out @ symbol
         try : # Checking if we are directly accessing memory with number or a token
             intline = int(line)
-            if (intline < 0) or (intline > 32767):
+            if (intline < 0) or (intline > 24576): # 24576 is the last bit of memory, starting at index 0
                 raise Exception("Out of range error")
             else:
                 output = '{0:016b}'.format(intline)
@@ -23,8 +23,8 @@ def generate_machine_code(line: str) -> str:
                 nexttokendest += 1
     # Everything else should be C instructions
     else:
-        jump = "000"
-        dest = "000"
+        jump = jumpdict["null"]
+        dest = destdict["null"]
         current = line
         if "=" in current:
             splitline = line.split("=")
@@ -180,6 +180,8 @@ def main():
     global destdict ; destdict = init_dest_lookup_dict()
     global compdict ; compdict = init_comp_lookup_dict()
     global tokendict ; tokendict = init_token_lookup_dict()
+    global nexttokendest ; nexttokendest = 16 # In case we need to add a new token
+
     outputcode = ""
     
     init_loop_locations(parsed_lines)
