@@ -119,14 +119,12 @@ def main():
     global compdict ; compdict = init_comp_lookup_dict()
     global tokendict ; tokendict = init_token_lookup_dict()
     global nexttokendest ; nexttokendest = 16
-    global codeline ; codeline = 1
+    global codeline ; codeline = 0
     global outputcode ; outputcode = ""
     for line in parsed_lines:
-        # Checking for L instruction
-        output = ""
         if line[0] == "(":
             #parse jump coordinates
-            line = line[1:-2]
+            line = line[1:-1]
             try:
                 int(line)
                 raise Exception("Invalid jump name: \""+line+"\"")
@@ -135,9 +133,13 @@ def main():
                     raise Exception("Token already used: \""+line+"\"")
                 else:
                     tokendict[line] = codeline
-        # Checking for A instructions
-        elif line[0] == "@":
+        else:
             codeline += 1
+    for line in parsed_lines:
+        # Checking for A instructions
+        if line[0] == "(":
+            pass
+        elif line[0] == "@":
             line = line[1:]
             try :
                 intline = int(line)
@@ -154,7 +156,7 @@ def main():
                     nexttokendest += 1
         # Everything else should be C instructions
         else:
-            codeline +=1
+            print(line)
             hasdest = False
             hasjump = False
             if "=" in line:
@@ -178,7 +180,11 @@ def main():
                 comp = compdict[splitline[0]]
                 jump = jumpdict[splitline[1]]
             output = "111" + comp + dest + jump
-        outputcode += output + "\n"
+        if output != "":
+            outputcode += output + "\n"
+            output = ""
+        else:
+            pass
     outputfile = open("output.hack", "w")
     outputfile.write(outputcode)
     outputfile.close()
