@@ -68,6 +68,7 @@ def init_comp_lookup_dict() -> dict:
 
 def init_token_lookup_dict() -> dict:
     token_lookup = {}
+    token_lookup["R0"] = 0
     token_lookup["R1"] = 1
     token_lookup["R2"] = 2
     token_lookup["R3"] = 3
@@ -83,9 +84,10 @@ def init_token_lookup_dict() -> dict:
     token_lookup["R13"] = 13
     token_lookup["R14"] = 14
     token_lookup["R15"] = 15
-    token_lookup["R16"] = 16
     token_lookup["SCREEN"] = 16384
     token_lookup["KBD"] = 24576
+
+    return token_lookup
 
 def parse(input_line: str) -> str:
     # strip white space
@@ -116,7 +118,7 @@ def main():
     global destdict ; destdict = init_dest_lookup_dict()
     global compdict ; compdict = init_comp_lookup_dict()
     global tokendict ; tokendict = init_token_lookup_dict()
-    global nexttokendest ; nexttokendest = 17
+    global nexttokendest ; nexttokendest = 16
     global codeline ; codeline = 1
     global outputcode ; outputcode = ""
     for line in parsed_lines:
@@ -144,9 +146,9 @@ def main():
                 else:
                     output = '{0:016b}'.format(intline)
             except ValueError:
-                if line in tokendict:
+                try:
                     output = '{0:016b}'.format(tokendict[line])
-                else:
+                except:
                     tokendict[line] = nexttokendest
                     output = '{0:016b}'.format(nexttokendest)
                     nexttokendest += 1
