@@ -2,7 +2,69 @@ import sys
 
 def generate_machine_code(line: str) -> str:
     # take line as input, check for A_instruction, C_instruction, or L_instruction, break line into components as needed, interact with symbol table as needed, use lookup dictionaries to translate symbolic assembly into binary and return that binary value
-    pass
+    global nexttokendest
+    if line[0] == "(":
+        output = ""
+    elif line[0] == "@":
+        line = line[1:]
+        try :
+            intline = int(line)
+            if (intline < 0) or (intline > 32767):
+                raise Exception("Out of range error")
+            else:
+                output = '{0:016b}'.format(intline)
+        except ValueError:
+            try:
+                output = '{0:016b}'.format(tokendict[line])
+            except:
+                tokendict[line] = nexttokendest
+                output = '{0:016b}'.format(nexttokendest)
+                nexttokendest += 1
+    # Everything else should be C instructions
+    else:
+        hasdest = False
+        hasjump = False
+        if "=" in line:
+            hasdest = True
+        if ";" in line:
+            hasjump = True
+        if (hasdest == True) and (hasjump == False):
+            jump = "000"
+            splitline = line.split("=")
+            splitline[0] = ''.join(sorted(splitline[0]))
+            dest = destdict[splitline[0]]
+            comp = compdict[splitline[1]]
+        elif (hasdest == False) and (hasjump == True):
+            dest = "000"
+            splitline = line.split(";")
+            comp = compdict[splitline[0]]
+            jump = jumpdict[splitline[1]]
+        else:
+            splitline = line.split("=")
+            splitline[0] = ''.join(sorted(splitline[0]))
+            dest = destdict[splitline[0]]
+            splitline = splitline[1].split(";")
+            comp = compdict[splitline[0]]
+            jump = jumpdict[splitline[1]]
+        output = "111" + comp + dest + jump
+    return output
+
+def init_loop_locations(parsedlines):
+    global codeline
+    for line in parsedlines:
+        if line[0] == "(":
+            #parse jump coordinates
+            line = line[1:-1]
+            try:
+                int(line)
+                raise Exception("Invalid jump name: \""+line+"\"")
+            except ValueError:
+                if line in tokendict:
+                    raise Exception("Token already used: \""+line+"\"")
+                else:
+                    tokendict[line] = codeline
+        else:
+            codeline += 1
 
 def init_jump_lookup_dict() -> dict:
     # build jump lookup dictionary as a jump type (as a string) as the key and its dest bits (as a string) as value
@@ -130,71 +192,13 @@ def main():
     global nexttokendest ; nexttokendest = 16
     global codeline ; codeline = 0
     global outputcode ; outputcode = ""
-    for line in parsed_lines:
-        if line[0] == "(":
-            #parse jump coordinates
-            line = line[1:-1]
-            try:
-                int(line)
-                raise Exception("Invalid jump name: \""+line+"\"")
-            except ValueError:
-                if line in tokendict:
-                    raise Exception("Token already used: \""+line+"\"")
-                else:
-                    tokendict[line] = codeline
-        else:
-            codeline += 1
+    
+    init_loop_locations(parsed_lines)
     for line in parsed_lines:
         # Checking for A instructions
-        if line[0] == "(":
-            pass
-        elif line[0] == "@":
-            line = line[1:]
-            try :
-                intline = int(line)
-                if (intline < 0) or (intline > 32767):
-                    raise Exception("Out of range error")
-                else:
-                    output = '{0:016b}'.format(intline)
-            except ValueError:
-                try:
-                    output = '{0:016b}'.format(tokendict[line])
-                except:
-                    tokendict[line] = nexttokendest
-                    output = '{0:016b}'.format(nexttokendest)
-                    nexttokendest += 1
-        # Everything else should be C instructions
-        else:
-            hasdest = False
-            hasjump = False
-            if "=" in line:
-                hasdest = True
-            if ";" in line:
-                hasjump = True
-            if (hasdest == True) and (hasjump == False):
-                jump = "000"
-                splitline = line.split("=")
-                splitline[0] = ''.join(sorted(splitline[0]))
-                dest = destdict[splitline[0]]
-                comp = compdict[splitline[1]]
-            elif (hasdest == False) and (hasjump == True):
-                dest = "000"
-                splitline = line.split(";")
-                comp = compdict[splitline[0]]
-                jump = jumpdict[splitline[1]]
-            else:
-                splitline = line.split("=")
-                splitline[0] = ''.join(sorted(splitline[0]))
-                dest = destdict[splitline[0]]
-                splitline = splitline[1].split(";")
-                comp = compdict[splitline[0]]
-                jump = jumpdict[splitline[1]]
-            output = "111" + comp + dest + jump
+        output = generate_machine_code(line)
         if output != "":
             outputcode += output + "\n"
-            output = "" 
-        else:
-            pass
     outputfile = open("output.hack", "w")
     outputfile.write(outputcode)
     outputfile.close()
