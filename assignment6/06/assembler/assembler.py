@@ -156,7 +156,6 @@ def main():
                     nexttokendest += 1
         # Everything else should be C instructions
         else:
-            print(line)
             hasdest = False
             hasjump = False
             if "=" in line:
@@ -182,7 +181,7 @@ def main():
             output = "111" + comp + dest + jump
         if output != "":
             outputcode += output + "\n"
-            output = ""
+            output = "" 
         else:
             pass
     outputfile = open("output.hack", "w")
@@ -195,3 +194,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("Parsing completed, have a nice day.")
