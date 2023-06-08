@@ -176,7 +176,7 @@ def main():
                 comp = compdict[splitline[0]]
                 jump = jumpdict[splitline[1]]
             output = "111" + comp + dest + jump
-        outputcode += output
+        outputcode += output + "\n"
     outputfile = open("output.hack", "w")
     outputfile.write(outputcode)
     outputfile.close()
