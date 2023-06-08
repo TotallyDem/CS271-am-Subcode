@@ -2,7 +2,7 @@ import sys
 
 def generate_machine_code(line: str) -> str:
     # Generates machine code based on instruction
-    global nexttokendest # In case we need to add a new token
+    nexttokendest = 16 # In case we need to add a new token
     if line[0] == "(": # skip loop components
         output = ""
     # A instructions
@@ -41,7 +41,7 @@ def generate_machine_code(line: str) -> str:
     return output
 
 def init_loop_locations(parsedlines):
-    global codeline
+    codeline = 0
     for line in parsedlines:
         if line[0] == "(":
             #parse jump coordinates
@@ -180,9 +180,7 @@ def main():
     global destdict ; destdict = init_dest_lookup_dict()
     global compdict ; compdict = init_comp_lookup_dict()
     global tokendict ; tokendict = init_token_lookup_dict()
-    global nexttokendest ; nexttokendest = 16
-    global codeline ; codeline = 0
-    global outputcode ; outputcode = ""
+    outputcode = ""
     
     init_loop_locations(parsed_lines)
     for line in parsed_lines:
