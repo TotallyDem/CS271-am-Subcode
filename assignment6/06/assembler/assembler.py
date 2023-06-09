@@ -10,10 +10,7 @@ def generate_machine_code(line: str) -> str:
         line = line[1:] # Stripping out @ symbol
         try : # Checking if we are directly accessing memory with number or a token
             intline = int(line)
-            if (intline < 0) or (intline > 24576): # 24576 is the last bit of memory, starting at index 0
-                raise Exception("Out of range error")
-            else:
-                output = '{0:016b}'.format(intline)
+            output = '{0:016b}'.format(intline)
         except ValueError:
             try:
                 output = '{0:016b}'.format(tokendict[line])
@@ -164,6 +161,7 @@ def main():
     # open file, read into a list
     input_filename = sys.argv[1]
     input_file_contents = []
+    filename = input_filename.split(0)[0]
     with open(input_filename, "r") as input_file:
         input_file_contents = input_file.readlines()
 
@@ -190,7 +188,7 @@ def main():
         output = generate_machine_code(line)
         if output != "":
             outputcode += output + "\n"
-    outputfile = open("output.hack", "w")
+    outputfile = open(f"{filename}.hack", "w")
     outputfile.write(outputcode)
     outputfile.close()
 
