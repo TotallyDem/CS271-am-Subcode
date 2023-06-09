@@ -5,12 +5,14 @@ import assembler
 # 16-255 static var
 # 256-2047 SP
 
+#TODO Enable ability to use functions while not in constant scope
+
 #TODO add label [label]
 #TODO add goto [label]
 #TODO add if-goto [label]
 
 #TODO Function [functionName] [nVars]
-#TODO Ca    ll [functionName] [nArgs]
+#TODO Call [functionName] [nArgs]
 
 def pointerretur(name) -> str:
     pass
@@ -18,14 +20,14 @@ def pointerretur(name) -> str:
 def init_dest_lookup_dict() -> dict:
     # build dest lookup dictionary as a dest register (as a string) as the key and its dest bits (as a string) as value
     dest_lookup = {}
-    dest_lookup["local"]    = ""
-    dest_lookup["argument"] = ""
-    dest_lookup["this"]     = ""
-    dest_lookup["that"]     = ""
-    dest_lookup["constant"] = "@SP\n"
+    dest_lookup["local"]    = "@LCL"
+    dest_lookup["argument"] = "@ARG"
+    dest_lookup["this"]     = "@THIS"
+    dest_lookup["that"]     = "@THAT"
+    dest_lookup["constant"] = "@SP"
     dest_lookup["static"]   = ""
     dest_lookup["pointer"]  = ""
-    dest_lookup["temp"]     = ""
+    dest_lookup["temp"]     = "@5"
 
     return dest_lookup
 
@@ -59,18 +61,46 @@ def main():
     for line in parsed_lines:
         command += 1
         current = line.split(" ")
-        context = memloc[current[1]]
+        context = ""
+        try:
+            context = memloc[current[1]]
+        except:
+            context = memloc["constant"]
         if current[0] == "push":
-            code += f"@{current[2]}\n"
-            code += "D=A\n"
-            code += memloc[current[1]]
+            if context != "@SP":
+                code += f"@{current[2]}\n"
+                code += "D=A\n"
+                if context == "@5":
+                    code += f"{context}\n"
+                else:
+                    code += f"{context}\n"
+                    code += "A=M\n"
+                code += "A=D+A\n"
+                code += "D=M\n"
+            else:
+                code += f"@{current[2]}\n"
+                code += "D=A\n"
+            code += "@SP\n"
             code += "M=M+1\n"
             code += "A=M-1\n"
             code += "M=D\n"
         elif current[0] == "pop":
-            code += memloc[current[1]]
+            code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
+            if context != "@SP":
+                if context == "@5":
+                    code += f"{context}\n"
+                else:
+                    code += f"{context}\n"
+                    code += "A=M\n"
+                i = 0
+                while True:
+                    if i == int(current[2]):
+                        break
+                    code += "A=A+1\n"
+                    i += 1
+                code += "M=D\n"
         elif current[0] == "add":
             code += "@SP\n"
             code += "AM=M-1\n"
