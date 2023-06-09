@@ -40,4 +40,34 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+    Not(in=instruction[15], out=ainstruct); // Only instance where the 16th bit is 0 is when loading adress
+    Mux16(a=aluout, b=instruction, sel=ainstruct, out=areginput);
+    
+    Or(a=ainstruct, b=instruction[5], out=aregload); 
+    ARegister(in=areginput, load=aregload, out=aregout, out[0..14]=addressM);
+    
+    // D Register
+    And(a=instruction[4], b=instruction[15], out=dregload); // load conditions
+    DRegister(in=aluout, load=dregload, out=alux);
+
+    // ALU
+    And(a=instruction[15], b=instruction[12], out=aorm);
+    Mux16(a=aregout, b=inM, sel=aorm, out=aluy);
+    ALU(x=alux, y=aluy, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluout, out=outM, zr=zero, ng=neg);
+    
+    // PC
+    Not(in=neg, out=pos);
+    Not(in=zero, out=nonzero);
+
+    And(a=instruction[0], b=pos, out=gtjump1);
+    And(a=gtjump1, b=nonzero, out=gtjump);
+    And(a=instruction[1], b=zero, out=zerojump);
+    And(a=instruction[2], b=neg, out=negjump);
+    Or(a=gtjump, b=zerojump, out=j1);
+    Or(a=j1, b=negjump, out=j2);
+    And(a=j2, b=instruction[15], out=loadpc);
+    
+    PC(in=aregout, load=loadpc, inc=true, reset=reset, out[0..14]=pc);
+    // writeM
+    And(a=instruction[3], b=instruction[15], out=writeM);
 }
