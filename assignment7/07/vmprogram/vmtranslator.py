@@ -67,7 +67,7 @@ def main():
         except:
             context = memloc["constant"]
         if current[0] == "push":
-            if context != "@SP":
+            if context != "@SP": # Normal Push
                 code += f"@{current[2]}\n"
                 code += "D=A\n"
                 if context == "@5":
@@ -77,47 +77,47 @@ def main():
                     code += "A=M\n"
                 code += "A=D+A\n"
                 code += "D=M\n"
-            else:
+            else: # Push from other memory
                 code += f"@{current[2]}\n"
                 code += "D=A\n"
             code += "@SP\n"
             code += "M=M+1\n"
             code += "A=M-1\n"
             code += "M=D\n"
-        elif current[0] == "pop":
+        elif current[0] == "pop":# Pop data from stack
             code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
-            if context != "@SP":
+            if context != "@SP": # Moves data to other memory
                 if context == "@5":
                     code += f"{context}\n"
                 else:
                     code += f"{context}\n"
                     code += "A=M\n"
                 i = 0
-                while True:
+                while True:# slowly increments up memory to necessary position can be done better
                     if i == int(current[2]):
                         break
                     code += "A=A+1\n"
                     i += 1
                 code += "M=D\n"
-        elif current[0] == "add":
+        elif current[0] == "add": # basic add
             code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
             code += "A=A-1\n"
             code += "M=D+M\n"
-        elif current[0] == "sub":
+        elif current[0] == "sub": # basic sub
             code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
             code += "A=A-1\n"
             code += "M=M-D\n"
-        elif current[0] == "neg":
+        elif current[0] == "neg":# negate
             code += "@SP\n"
             code += "A=M-1\n"
             code += "M=-M\n"
-        elif current[0] == "eq":
+        elif current[0] == "eq":# is equal to
             code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
@@ -130,7 +130,7 @@ def main():
             code += "A=M-1\n"
             code += "M=0\n"
             code += f"(COMMAND{command})\n"
-        elif current[0] == "gt":
+        elif current[0] == "gt":# greater than
             code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
@@ -143,7 +143,7 @@ def main():
             code += "A=M-1\n"
             code += "M=0\n"
             code += f"(COMMAND{command})\n"
-        elif current[0] == "lt":
+        elif current[0] == "lt":# less than
             code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
@@ -156,19 +156,19 @@ def main():
             code += "A=M-1\n"
             code += "M=0\n"
             code += f"(COMMAND{command})\n"
-        elif current[0] == "and":
+        elif current[0] == "and":# and function
             code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
             code += "A=A-1\n"
             code += "M=D&M\n"
-        elif current[0] == "or":
+        elif current[0] == "or":# or function
             code += "@SP\n"
             code += "AM=M-1\n"
             code += "D=M\n"
             code += "A=A-1\n"
             code += "M=D|M\n"
-        elif current[0] == "not":
+        elif current[0] == "not":# not function
             code += "@SP\n"
             code += "A=M-1\n"
             code += "M=!M\n"
@@ -176,9 +176,9 @@ def main():
             raise Exception("Command not supported")
     code += "(END)\n@END\n0;JMP\n"
     outputfile = open(f"{filename}.asm", "w")
-    outputfile.write(code)
+    outputfile.write(code)# writes code to asm file
     outputfile.close()
-    assembler.main(f"{filename}.asm")
+    assembler.main(f"{filename}.asm")# generates hack from asm file using asm compiler.
 
 if __name__ == "__main__":
     main()

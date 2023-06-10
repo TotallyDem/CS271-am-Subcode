@@ -12,16 +12,16 @@ def generate_machine_code(line: str) -> str:
             intline = int(line)
             output = '{0:016b}'.format(intline)
         except ValueError:
-            try:
+            try:# Test if the token already exists
                 output = '{0:016b}'.format(tokendict[line])
-            except:
+            except:# Create a new token if it does not
                 tokendict[line] = nexttokendest
                 output = '{0:016b}'.format(nexttokendest)
                 nexttokendest += 1
     # Everything else should be C instructions
     else:
-        jump = jumpdict["null"]
-        dest = destdict["null"]
+        jump = jumpdict["null"] # Default behavior
+        dest = destdict["null"] # Default behavior
         current = line
         if "=" in current:
             splitline = line.split("=")
@@ -29,7 +29,7 @@ def generate_machine_code(line: str) -> str:
             dest = destdict[splitline[0]]
             current = splitline[1]
         if ";" in current:
-            splitline = line.split(";")
+            splitline = current.split(";")
             comp = compdict[splitline[0]]
             jump = jumpdict[splitline[1]]
         else:
@@ -38,12 +38,13 @@ def generate_machine_code(line: str) -> str:
     return output
 
 def init_loop_locations(parsedlines):
+    # Adds loop tokens to global dictionary tokendict
     codeline = 0
     for line in parsedlines:
         if line[0] == "(":
             #parse jump coordinates
             line = line[1:-1]
-            try:
+            try:# You cant have a loop token that would just be a number, like (31)
                 int(line)
                 raise Exception("Invalid jump name: \""+line+"\"")
             except ValueError:
