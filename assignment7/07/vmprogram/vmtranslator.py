@@ -25,8 +25,8 @@ def init_dest_lookup_dict() -> dict:
     dest_lookup["this"]     = "@THIS"
     dest_lookup["that"]     = "@THAT"
     dest_lookup["constant"] = "@SP"
-    dest_lookup["static"]   = ""
-    dest_lookup["pointer"]  = ""
+    dest_lookup["static"]   = "@16"
+    dest_lookup["pointer"]  = "@3"
     dest_lookup["temp"]     = "@5"
 
     return dest_lookup
@@ -70,7 +70,7 @@ def main():
             if context != "@SP": # Normal Push
                 code += f"@{current[2]}\n"
                 code += "D=A\n"
-                if context == "@5":
+                if context in ("@3","@5","@16"):
                     code += f"{context}\n"
                 else:
                     code += f"{context}\n"
@@ -89,7 +89,7 @@ def main():
             code += "AM=M-1\n"
             code += "D=M\n"
             if context != "@SP": # Moves data to other memory
-                if context == "@5":
+                if context in ("@3","@5","@16"):
                     code += f"{context}\n"
                 else:
                     code += f"{context}\n"
@@ -182,4 +182,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+    print("Parsing Complete, have a nice day.")
