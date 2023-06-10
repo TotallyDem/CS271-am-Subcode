@@ -142,7 +142,6 @@ def init_token_lookup_dict() -> dict:
     token_lookup["ARG"] = 2
     token_lookup["THIS"] = 3
     token_lookup["THAT"] = 4
-    token_lookup["LOOP"] = 4
     token_lookup["STOP"] = 18
     token_lookup["i"] = 16
     token_lookup["sum"] = 17
